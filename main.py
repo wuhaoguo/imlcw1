@@ -127,7 +127,7 @@ print(correct/2000)
 '''
 #%%
 
-def split_dataset(data,kfold = 10,shuffle = False,validation = False):
+def cross_validation(data,kfold = 10,shuffle = False,validation = False):
     if shuffle != True and shuffle != False:
         raise ValueError("shuffle must be a Boolean Value")
     if validation != True and validation != False:
@@ -138,11 +138,42 @@ def split_dataset(data,kfold = 10,shuffle = False,validation = False):
     if shuffle:
         np.random.shuffle(data)
     slices = np.split(data,kfold)
-    if validation == 1:
-        result['test_set'] = slices[-1]
-        slices = slices[:-1]
-    result['train_and_validation_set'] = slices
-    return result
+    all_test_db = []
+    all_trained_tree = []
+    for i in range(kfold):
+        testing_set = slices[i]
+        training_set = slices.copy()
+        training_set.pop(i)
+        training_set = np.vstack(training_set)
+        all_test_db.append(testing_set)
+        trained_tree, _ = decision_tree_learning(training_set, 0)
+        all_trained_tree.append(trained_tree)
+    return all_test_db,all_trained_tree
+
+
+def evaluate(test_db, trained_tree):
+    confusion_matrix = np.zeros((4,4))
+    correct = 0
+    wrong = 0
+    for i in range(10):
+        for r in test_db[i]:
+            # print(r[7])
+            actual = int(float(r[7]))-1
+            predicted = int(float(find_label(trained_tree[i],r[:-1])))-1
+            if actual == predicted:
+                correct += 1
+            else:
+                wrong += 1
+            confusion_matrix[actual][predicted] += 1
+    print(confusion_matrix)
+            # print(find_label(trained_tree[i],r))
+    return correct / (correct + wrong)
+#%%
+
+    
+
+
+#%%
 # #%%Usage
 # split_datasets = split_dataset(data)
 # train_and_validation = split_datasets['train_and_validation_set']
