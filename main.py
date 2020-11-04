@@ -172,7 +172,13 @@ def plotNode(nodeTxt, centerPt, parentPt, nodeType):
 #     if isinstance(tree,float):
 #         return 1
 #     return getNumLeafs(tree["left"]) + getNumLeafs(tree["right"])
-
+def getNumLeafs_1(tree):
+    if not tree:
+        return None
+    if isinstance(tree,float):
+        return 1
+    return  getNumLeafs(tree['left']) + getNumLeafs(tree['right'])
+    
 def getNumLeafs(myTree):
     numLeafs = 0
     firstStr = list(myTree.keys())[0]
@@ -224,6 +230,4 @@ def createPlot(inTree):
 #%%
 a = {'tearRate': {'normal': {'astigmatic': {'yes': {'prescript': {'hyper': {'age': {'pre': 'no lenses', 'presbyopic': 'no lenses', 'young': 'hard'}}, 'myope': 'hard'}}, 'no': {'age': {'pre': 'soft', 'presbyopic': {'prescript': {'hyper': 'soft', 'myope': 'no lenses'}}, 'young': 'soft'}}}}, 'reduced': 'no lenses'}}
 createPlot(a)
-# %%
-
 # %%
