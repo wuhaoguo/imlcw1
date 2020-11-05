@@ -182,83 +182,103 @@ def evaluate(test_db, trained_tree):
 #     for training_data in train_and_validation:
 #         if training_data[-1] - find_label(tree,training_data) < 0.1:
 #             correct+=1
-#%%
-import matplotlib.pyplot as plt
+# #%%
+# import matplotlib.pyplot as plt
 
-#定义文本框和箭头格式
-decisionNode = dict(boxstyle='round', fc="1",)
-leafNode = dict(boxstyle='round', fc='1')
-arrow_args = dict(arrowstyle="-")
+# #定义文本框和箭头格式
+# decisionNode = dict(boxstyle='round', fc="1",)
+# leafNode = dict(boxstyle='round', fc='1')
+# arrow_args = dict(arrowstyle="-")
+# box_length = 2
+# box_height = 1
+# #绘制带箭头的注解 实际的绘图功能
+# def plotNode(nodeTxt, centerPt, parentPt, nodeType):
+#     createPlot.ax1.annotate(nodeTxt, xy=parentPt, \
+#                             xycoords='axes fraction',
+#                             xytext=centerPt, textcoords='axes fraction', \
+#                             va="center", ha='center', bbox=nodeType, arrowprops=arrow_args)
 
-#绘制带箭头的注解 实际的绘图功能
-def plotNode(nodeTxt, centerPt, parentPt, nodeType):
-    createPlot.ax1.annotate(nodeTxt, xy=parentPt, \
-                            xycoords='axes fraction',
-                            xytext=centerPt, textcoords='axes fraction', \
-                            va="center", ha='center', bbox=nodeType, arrowprops=arrow_args)
-
-# def getNumLeafs_my(tree):
+# # def getNumLeafs_my(tree):
+# #     if not tree:
+# #         return 0
+# #     if isinstance(tree,float):
+# #         return 1
+# #     return getNumLeafs(tree["left"]) + getNumLeafs(tree["right"])
+# def getNumLeafs_1(tree):
 #     if not tree:
-#         return 0
+#         return None
 #     if isinstance(tree,float):
 #         return 1
-#     return getNumLeafs(tree["left"]) + getNumLeafs(tree["right"])
-def getNumLeafs_1(tree):
-    if not tree:
-        return None
-    if isinstance(tree,float):
-        return 1
-    return  getNumLeafs(tree['left']) + getNumLeafs(tree['right'])
+#     return  getNumLeafs(tree['left']) + getNumLeafs(tree['right'])
+
+# def getNumLeafs(myTree):
+#     numLeafs = 0
+#     firstStr = list(myTree.keys())[0]
+#     secondDict = myTree[firstStr]
+#     for key in secondDict.keys():
+#         if type(secondDict[key]).__name__ == 'dict':
+#             numLeafs += getNumLeafs(secondDict[key])
+#         else:
+#             numLeafs += 1
+#     return numLeafs
     
-def getNumLeafs(myTree):
-    numLeafs = 0
-    firstStr = list(myTree.keys())[0]
-    secondDict = myTree[firstStr]
-    for key in secondDict.keys():
-        if type(secondDict[key]).__name__ == 'dict':
-            numLeafs += getNumLeafs(secondDict[key])
-        else:
-            numLeafs += 1
-    return numLeafs
-    
-def getTreeDepth(myTree):
-    return 4
+# def getTreeDepth(myTree):
+#     return 4
     
 
     
-def plotTree(myTree, parentPt, nodeTxt):
-    numLeafs = getNumLeafs(myTree) #计算宽
-    depth = getTreeDepth(myTree) #计算高
-    firstStr = list(myTree.keys())[0]
-    #计算已经绘制的节点的位置，以及放置下一个节点的恰当位置
-    #通过计算树所包含的所有叶子节点数，划分图形的宽度，从而计算得到当前节点的中心位置
-    cntrPt = (plotTree.xOff + (1.0 + float(numLeafs))/2.0/plotTree.totalW, plotTree.yOff)
-    # 标记子节点的属性值
-    plotNode(firstStr, cntrPt, parentPt, decisionNode)
-    secondDict = myTree[firstStr]
-    # 按比例减少全局变量plotTree.yOff,并标注此处需要绘制子节点
-    plotTree.yOff = plotTree.yOff - 1.0/plotTree.totalD #依次递减y坐标
-    for key in secondDict.keys():
-        if type(secondDict[key]).__name__ == 'dict':
-            plotTree(secondDict[key], cntrPt, str(key))
-        else:
-            plotTree.xOff = plotTree.xOff + 1.0/plotTree.totalW
-            plotNode(secondDict[key], (plotTree.xOff, plotTree.yOff), cntrPt, leafNode)
-    plotTree.yOff = plotTree.yOff + 1.0/plotTree.totalD #在绘制完所有子节点以后，增加全局变量Y的偏移值
-    
-def createPlot(inTree):
-    fig = plt.figure(1, facecolor='white')
-    fig.clf()
-    axprops = dict(xticks=[], yticks=[])
-    createPlot.ax1 = plt.subplot(111, frameon=False, **axprops)
-    plotTree.totalW = float(getNumLeafs(inTree)) #存储树的宽度
-    plotTree.totalD = float(getTreeDepth(inTree)) #存储树的深度
-    #追踪已经绘制的节点的位置
-    plotTree.xOff = -0.5/plotTree.totalW 
-    plotTree.yOff = 1.0
-    plotTree(inTree, (0.5, 1.0), '')
-    plt.show()
-#%%
-a = {'tearRate': {'normal': {'astigmatic': {'yes': {'prescript': {'hyper': {'age': {'pre': 'no lenses', 'presbyopic': 'no lenses', 'young': 'hard'}}, 'myope': 'hard'}}, 'no': {'age': {'pre': 'soft', 'presbyopic': {'prescript': {'hyper': 'soft', 'myope': 'no lenses'}}, 'young': 'soft'}}}}, 'reduced': 'no lenses'}}
-createPlot(a)
+# def plotTree(myTree, parentPt, nodeTxt):
+#     numLeafs = getNumLeafs(myTree) #计算宽
+#     depth = getTreeDepth(myTree) #计算高
+#     firstStr = list(myTree.keys())[0]
+#     #计算已经绘制的节点的位置，以及放置下一个节点的恰当位置
+#     #通过计算树所包含的所有叶子节点数，划分图形的宽度，从而计算得到当前节点的中心位置
+#     cntrPt = (plotTree.xOff + (1.0 + float(numLeafs))/2.0/plotTree.totalW, plotTree.yOff)
+#     # 标记子节点的属性值
+#     plotNode(firstStr, cntrPt, parentPt, decisionNode)
+#     secondDict = myTree[firstStr]
+#     # 按比例减少全局变量plotTree.yOff,并标注此处需要绘制子节点
+#     plotTree.yOff = plotTree.yOff - 1.0/plotTree.totalD #依次递减y坐标
+#     for key in secondDict.keys():
+#         if type(secondDict[key]).__name__ == 'dict':
+#             plotTree(secondDict[key], cntrPt, str(key))
+#         else:
+#             plotTree.xOff = plotTree.xOff + 1.0/plotTree.totalW
+#             plotNode(secondDict[key], (plotTree.xOff, plotTree.yOff), cntrPt, leafNode)
+#     plotTree.yOff = plotTree.yOff + 1.0/plotTree.totalD #在绘制完所有子节点以后，增加全局变量Y的偏移值
+
+# def my_plot_tree(tree, rootLocation):
+#     pass
+
+# def find_most_left(tree):
+#     if not Tree or isinstance(tree, float):
+#         return 0
+#     return max(find_most_left(tree['left']))
+# def createPlot(inTree):
+
+#     plotTree.totalW = float(getNumLeafs_1(inTree)) #存储树的宽度
+#     plotTree.totalD = float(depth) #存储树的深度
+#     fig = plt.figure(figsize=(plotTree.totalW * 0.7, plotTree.totalD), facecolor='white')
+#     fig.clf()
+#     axprops = dict(xticks=[], yticks=[])
+#     createPlot.ax1 = plt.subplot(111, frameon=False, **axprops)
+
+#     #追踪已经绘制的节点的位置
+#     plotTree.xOff = -0.5/plotTree.totalW 
+#     plotTree.yOff = 1.0
+#     plt.show()
+# #%%
+# a = {'tearRate': {'normal': {'astigmatic': {'yes': {'prescript': {'hyper': {'age': {'pre': 'no lenses', 'presbyopic': 'no lenses', 'young': 'hard'}}, 'myope': 'hard'}}, 'no': {'age': {'pre': 'soft', 'presbyopic': {'prescript': {'hyper': 'soft', 'myope': 'no lenses'}}, 'young': 'soft'}}}}, 'reduced': 'no lenses'}}
+# createPlot(a)
 # %%
+def get_accuracy(tree, dataset):
+    correct = 0
+    wrong = 0
+    for i in dataset:
+        if abs((find_label(tree,i)) - i[-1])  < 0.01:
+            correct +=1
+        else:
+            wrong+=1
+    return correct / (correct + wrong)
+# %%
+tree
