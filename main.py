@@ -223,6 +223,14 @@ def get_accuracy(tree, dataset):
         else:
             wrong+=1
     return correct / (correct + wrong)
+def repeat_Pruning(root,validation):
+ori = root.copy()
+first = Pruning(root,validation)
+second = Pruning(first,validation)
+if first == second:
+    return first
+else:
+    return repeat_Pruning(second,validation)
 #%%
 def Pruning(tree, validation_set,curNode = None,path = None):
     print(curNode)
