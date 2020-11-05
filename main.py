@@ -107,26 +107,8 @@ print("load finished")
 
 tree, depth = decision_tree_learning(clean_dataset, 0)
 
-'''
-# Shuffle the dataset
-np.random.shuffle(clean_dataset)
-np.random.shuffle(noisy_dataset)
-'''
-'''
-# simple test
-correct = 0
-for test_row_ind in range(2000):
-    test_row = clean_dataset[test_row_ind, 0:7]
-    pre_label = find_label(tree, test_row)
-    ground_truth = clean_dataset[test_row_ind, 7]
 
-    if(pre_label==ground_truth):
-        correct += 1
-        
-print(correct/2000)
-'''
 #%%
-
 def cross_validation(data,kfold = 10,shuffle = False,validation = False):
     if shuffle != True and shuffle != False:
         raise ValueError("shuffle must be a Boolean Value")
@@ -168,109 +150,70 @@ def evaluate(test_db, trained_tree):
     print(confusion_matrix)
             # print(find_label(trained_tree[i],r))
     return correct / (correct + wrong)
+
+
+# load data
+clean_dataset = load_data("WIFI_db/clean_dataset.txt")
+noisy_dataset = load_data("WIFI_db/noisy_dataset.txt")
+print("load finished")
+# print(clean_dataset)
+
+tree, depth = decision_tree_learning(noisy_dataset, 0)
+# test_db, trained_tree = cross_validation(noisy_dataset)
+#evaluate(test_db, trained_tree)
+'''
+# Shuffle the dataset
+np.random.shuffle(clean_dataset)
+np.random.shuffle(noisy_dataset)
+'''
+'''
+# simple test
+correct = 0
+for test_row_ind in range(2000):
+    test_row = clean_dataset[test_row_ind, 0:7]
+    pre_label = find_label(tree, test_row)
+    ground_truth = clean_dataset[test_row_ind, 7]
+
+    if(pre_label==ground_truth):
+        correct += 1
+        
+print(correct/2000)
+'''
 #%%
-
-    
-
-
+def get_accuracy1(tree, dataset):
+    test_db, trained_tree = cross_validation(dataset)
+    return evaluate(test_db, trained_tree)
 #%%
-# #%%Usage
-# split_datasets = split_dataset(data)
-# train_and_validation = split_datasets['train_and_validation_set']
-# test_set = split_datasets['test_set']
-# for i in range(10):
-#     for training_data in train_and_validation:
-#         if training_data[-1] - find_label(tree,training_data) < 0.1:
-#             correct+=1
-# #%%
-# import matplotlib.pyplot as plt
-
-# #定义文本框和箭头格式
-# decisionNode = dict(boxstyle='round', fc="1",)
-# leafNode = dict(boxstyle='round', fc='1')
-# arrow_args = dict(arrowstyle="-")
-# box_length = 2
-# box_height = 1
-# #绘制带箭头的注解 实际的绘图功能
-# def plotNode(nodeTxt, centerPt, parentPt, nodeType):
-#     createPlot.ax1.annotate(nodeTxt, xy=parentPt, \
-#                             xycoords='axes fraction',
-#                             xytext=centerPt, textcoords='axes fraction', \
-#                             va="center", ha='center', bbox=nodeType, arrowprops=arrow_args)
-
-# # def getNumLeafs_my(tree):
-# #     if not tree:
-# #         return 0
-# #     if isinstance(tree,float):
-# #         return 1
-# #     return getNumLeafs(tree["left"]) + getNumLeafs(tree["right"])
-# def getNumLeafs_1(tree):
-#     if not tree:
-#         return None
-#     if isinstance(tree,float):
-#         return 1
-#     return  getNumLeafs(tree['left']) + getNumLeafs(tree['right'])
-
-# def getNumLeafs(myTree):
-#     numLeafs = 0
-#     firstStr = list(myTree.keys())[0]
-#     secondDict = myTree[firstStr]
-#     for key in secondDict.keys():
-#         if type(secondDict[key]).__name__ == 'dict':
-#             numLeafs += getNumLeafs(secondDict[key])
-#         else:
-#             numLeafs += 1
-#     return numLeafs
-    
-# def getTreeDepth(myTree):
-#     return 4
-    
-
-    
-# def plotTree(myTree, parentPt, nodeTxt):
-#     numLeafs = getNumLeafs(myTree) #计算宽
-#     depth = getTreeDepth(myTree) #计算高
-#     firstStr = list(myTree.keys())[0]
-#     #计算已经绘制的节点的位置，以及放置下一个节点的恰当位置
-#     #通过计算树所包含的所有叶子节点数，划分图形的宽度，从而计算得到当前节点的中心位置
-#     cntrPt = (plotTree.xOff + (1.0 + float(numLeafs))/2.0/plotTree.totalW, plotTree.yOff)
-#     # 标记子节点的属性值
-#     plotNode(firstStr, cntrPt, parentPt, decisionNode)
-#     secondDict = myTree[firstStr]
-#     # 按比例减少全局变量plotTree.yOff,并标注此处需要绘制子节点
-#     plotTree.yOff = plotTree.yOff - 1.0/plotTree.totalD #依次递减y坐标
-#     for key in secondDict.keys():
-#         if type(secondDict[key]).__name__ == 'dict':
-#             plotTree(secondDict[key], cntrPt, str(key))
-#         else:
-#             plotTree.xOff = plotTree.xOff + 1.0/plotTree.totalW
-#             plotNode(secondDict[key], (plotTree.xOff, plotTree.yOff), cntrPt, leafNode)
-#     plotTree.yOff = plotTree.yOff + 1.0/plotTree.totalD #在绘制完所有子节点以后，增加全局变量Y的偏移值
-
-# def my_plot_tree(tree, rootLocation):
-#     pass
-
-# def find_most_left(tree):
-#     if not Tree or isinstance(tree, float):
-#         return 0
-#     return max(find_most_left(tree['left']))
-# def createPlot(inTree):
-
-#     plotTree.totalW = float(getNumLeafs_1(inTree)) #存储树的宽度
-#     plotTree.totalD = float(depth) #存储树的深度
-#     fig = plt.figure(figsize=(plotTree.totalW * 0.7, plotTree.totalD), facecolor='white')
-#     fig.clf()
-#     axprops = dict(xticks=[], yticks=[])
-#     createPlot.ax1 = plt.subplot(111, frameon=False, **axprops)
-
-#     #追踪已经绘制的节点的位置
-#     plotTree.xOff = -0.5/plotTree.totalW 
-#     plotTree.yOff = 1.0
-#     plt.show()
-# #%%
-# a = {'tearRate': {'normal': {'astigmatic': {'yes': {'prescript': {'hyper': {'age': {'pre': 'no lenses', 'presbyopic': 'no lenses', 'young': 'hard'}}, 'myope': 'hard'}}, 'no': {'age': {'pre': 'soft', 'presbyopic': {'prescript': {'hyper': 'soft', 'myope': 'no lenses'}}, 'young': 'soft'}}}}, 'reduced': 'no lenses'}}
-# createPlot(a)
-# %%
+# slices = np.split(noisy_dataset,10)
+# test = slices[-1]
+# validation = slices[-2]
+# training_set = np.hstack(slices[:8])
+# tree,_ = decision_tree_learning(training_set,0)
+#print(get_accuracy(tree,test))
+def get_data(data,path):
+    result = []
+    temp = []
+    for i in range(len(path)-1):
+        if path[i]['left'] == path[i+1]:
+            for j in data:
+                if j[path[i]['attribute']] < path[i]['value']:
+                    temp.append(j)
+        if path[i]['right'] == path[i+1]:
+            for j in data:
+                if j[path[i]['attribute']] > path[i]['value']:
+                    temp.append(j)
+        data = temp
+        temp = []
+    return data
+def get_most(data):
+    result = {}
+    for i in data:
+        if int(i[-1]) in result.keys():
+            result[int(i[-1])] += 1
+        else:
+            result[int(i[-1])] = 1
+    print(result)
+    return sorted(result.items(), key = lambda kv:(kv[1], kv[0]))[-1][0]
 def get_accuracy(tree, dataset):
     correct = 0
     wrong = 0
@@ -280,5 +223,46 @@ def get_accuracy(tree, dataset):
         else:
             wrong+=1
     return correct / (correct + wrong)
+#%%
+def Pruning(tree, validation_set,curNode = None,path = None):
+    print(curNode)
+    print("")
+    if not curNode:
+        curNode = tree
+    if not path:
+        path = [curNode]
+    else:
+        path.append(curNode)
+    print("path: " + str(len(path)))
+    if isinstance(curNode,float) or isinstance(curNode,int):
+        return curNode
+    if isinstance(curNode['left'],float) and isinstance(curNode['right'],float):
+        print("Removing")
+        print(path[-1])
+        print(path[-2])
+        oriAcc = get_accuracy(tree,validation_set)
+        print("oriAcc:" + str(oriAcc))
+        oricurNode = curNode.copy()
+        data = get_data(validation_set,path)
+        label = get_most(data)
+        if path[-2]['left'] == curNode:
+            path[-2]['left'] = label
+        else:
+            path[-2]['right'] = label
+        newAcc = get_accuracy(tree,validation_set)
+        print("newAcc:" + str(newAcc))
+        if  newAcc < oriAcc:
+            curNode = oricurNode
+        return curNode
+    curNode['left'] = Pruning (tree,validation_set,curNode['left'],path.copy())
+    curNode['right'] = Pruning (tree,validation_set,curNode['right'],path.copy())
+    return curNode
+    
+        
+
+
+            
+    
+
+
 # %%
-tree
