@@ -223,6 +223,7 @@ def get_accuracy(tree, dataset):
         else:
             wrong+=1
     return correct / (correct + wrong)
+#%%
 def repeat_Pruning(root,validation):
     ori = root.copy()
     first = Pruning(root,validation)
@@ -231,8 +232,8 @@ def repeat_Pruning(root,validation):
         return first
     else:
         return repeat_Pruning(second,validation)
-#%%
-def Pruning(tree, validation_set,curNode = None,path = None):
+def Pruning(root, validation_set,curNode = None,path = None):
+    tree = root.copy()
     print(curNode)
     print("")
     if not curNode:
@@ -277,4 +278,63 @@ def Pruning(tree, validation_set,curNode = None,path = None):
     
 
 
+# %%
+# %%
+from matplotlib import pyplot as plt
+decisionNode = dict(boxstyle='round4', fc="0.8",)
+leafNode = dict(boxstyle='round4', fc='0.8')
+arrow_args = dict(arrowstyle="<-")
+def getdepth(tree):
+    if not tree:
+        return 0
+    if isinstance(tree,float) or isinstance(tree,int):
+        return 1
+    return max(getdepth(tree['left']),getdepth(tree['right'])) + 1
+
+def plotNode(nodeTxt, centerPt, parentPt, nodeType):
+    createPlot.ax1.annotate(nodeTxt, xy=parentPt, \
+                            xycoords='axes fraction',
+                            xytext=centerPt, textcoords='axes fraction', \
+                            va="center", ha='center', bbox=nodeType, arrowprops=arrow_args)
+
+def createPlot(tree):
+    #创建一个绘图区的全局变量
+    depth = getdepth(tree)
+    x_base_offset = pow(2,depth)
+    y_base_offset = 2
+    box_length = 0.4
+    box_height = 0.2
+    graph_length = pow(2,depth) * depth
+    graph_height = y_base_offset * depth
+    base_x = graph_length / 2
+    base_y = graph_height * 0.95
+
+    fig = plt.figure(1, facecolor='white')
+    fig.clf() #清空绘图区
+    createPlot.ax1 = plt.subplot(111, frameon=False)
+    plotNode('x' + str(tree['attribute']) + "<" + str(tree['value']), (base_x/graph_length, base_y/graph_height), (base_x/graph_length, base_y/graph_height), decisionNode)
+    parents = [[tree,base_x,base_y]]
+    temp = []
+    for d in range(1,depth):
+        for i in parents:
+            print(i)
+            x_offset =  pow(2,depth - d) * x_base_offset
+            y_offset =  y_base_offset
+            if isinstance(i[0]['left'],float):
+                plotNode('leaf:' + str(int(i[0]['left'])),((i[1] - x_offset)/graph_length,(i[2] - y_offset)/graph_height),(i[1]/graph_length,i[2]/graph_height),decisionNode)
+            if isinstance(i[0]['right'],float):
+                plotNode('leaf:' + str(int(i[0]['right'])),((i[1] + x_offset)/graph_length,(i[2] - y_offset)/graph_height),(i[1]/graph_length,i[2]/graph_height),decisionNode)           
+            if not isinstance(i[0]['left'],float):
+                temp.append([i[0]['left'],(i[1] - x_offset),(i[2] - y_offset)])
+                plotNode('x' + str(i[0]['attribute']) + "<" + str(i[0]['value']),((i[1] - x_offset)/graph_length,(i[2] - y_offset)/graph_height), (i[1]/graph_length,i[2]/graph_height),decisionNode)
+            if not isinstance(i[0]['right'],float):
+                temp.append([i[0]['right'],(i[1] + x_offset),(i[2] - y_offset)])
+                plotNode('x' + str(i[0]['attribute']) + "<" + str(i[0]['value']), ((i[1] + x_offset)/graph_length,(i[2] - y_offset)/graph_height),(i[1]/graph_length,i[2]/graph_height),decisionNode)
+        parents = temp
+        temp = []
+    plt.axis('off')
+    plt.show()
+    
+
+createPlot(tree)
 # %%
