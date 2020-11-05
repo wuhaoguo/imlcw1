@@ -281,9 +281,8 @@ def Pruning(root, validation_set,curNode = None,path = None):
 # %%
 # %%
 from matplotlib import pyplot as plt
-decisionNode = dict(boxstyle='round4', fc="0.8",)
-leafNode = dict(boxstyle='round4', fc='0.8')
-arrow_args = dict(arrowstyle="<-")
+decisionNode = dict(boxstyle='round4', fc="1",color = "skyblue")
+leafNode = dict(boxstyle='round4', fc='1')
 def getdepth(tree):
     if not tree:
         return 0
@@ -291,14 +290,17 @@ def getdepth(tree):
         return 1
     return max(getdepth(tree['left']),getdepth(tree['right'])) + 1
 
-def plotNode(nodeTxt, centerPt, parentPt, nodeType):
+def plotNode(nodeTxt, centerPt, parentPt, nodeType,lineColor):
+
     createPlot.ax1.annotate(nodeTxt, xy=parentPt, \
                             xycoords='axes fraction',
                             xytext=centerPt, textcoords='axes fraction', \
-                            va="center", ha='center', bbox=nodeType, arrowprops=arrow_args)
+                            va="center", ha='center', bbox=nodeType, arrowprops=dict(arrowstyle="-",color=lineColor))
 
 def createPlot(tree):
     #创建一个绘图区的全局变量
+    color = ["red","blue", "peru","plum","cyan","lime","orange","black"]
+    colorCount = 0
     depth = getdepth(tree)
     x_base_offset = pow(2,depth - 2)
     y_base_offset = 2
@@ -312,7 +314,7 @@ def createPlot(tree):
     fig = plt.figure(1, facecolor='white')
     fig.clf() #清空绘图区
     createPlot.ax1 = plt.subplot(111, frameon=False)
-    plotNode('x' + str(tree['attribute']) + "<" + str(tree['value']), (base_x/graph_length, base_y/graph_height), (base_x/graph_length, base_y/graph_height), decisionNode)
+    plotNode('x' + str(tree['attribute']) + "<" + str(tree['value']), (base_x/graph_length, base_y/graph_height), (base_x/graph_length, base_y/graph_height), decisionNode,color[colorCount%len(color)])
     parents = [[tree,base_x,base_y]]
     temp = []
     for d in range(1,depth):
@@ -321,15 +323,16 @@ def createPlot(tree):
             x_offset =  pow(2,depth - d) * x_base_offset
             y_offset =  y_base_offset
             if isinstance(i[0]['left'],float):
-                plotNode('leaf:' + str(int(i[0]['left'])),((i[1] - x_offset)/graph_length,(i[2] - y_offset)/graph_height),(i[1]/graph_length,i[2]/graph_height),decisionNode)
+                plotNode('leaf:' + str(int(i[0]['left'])),((i[1] - x_offset)/graph_length,(i[2] - y_offset)/graph_height),(i[1]/graph_length,i[2]/graph_height-0.03),decisionNode,color[colorCount%len(color)])
             if isinstance(i[0]['right'],float):
-                plotNode('leaf:' + str(int(i[0]['right'])),((i[1] + x_offset)/graph_length,(i[2] - y_offset)/graph_height),(i[1]/graph_length,i[2]/graph_height),decisionNode)           
+                plotNode('leaf:' + str(int(i[0]['right'])),((i[1] + x_offset)/graph_length,(i[2] - y_offset)/graph_height),(i[1]/graph_length,i[2]/graph_height-0.03),decisionNode,color[colorCount])           
             if not isinstance(i[0]['left'],float):
                 temp.append([i[0]['left'],(i[1] - x_offset),(i[2] - y_offset)])
-                plotNode('x' + str(i[0]['attribute']) + "<" + str(i[0]['value']),((i[1] - x_offset)/graph_length,(i[2] - y_offset)/graph_height), (i[1]/graph_length,i[2]/graph_height),decisionNode)
+                plotNode('x' + str(i[0]['attribute']) + "<" + str(i[0]['value']),((i[1] - x_offset)/graph_length,(i[2] - y_offset)/graph_height), (i[1]/graph_length,i[2]/graph_height-0.03),decisionNode,color[colorCount%len(color)])
             if not isinstance(i[0]['right'],float):
                 temp.append([i[0]['right'],(i[1] + x_offset),(i[2] - y_offset)])
-                plotNode('x' + str(i[0]['attribute']) + "<" + str(i[0]['value']), ((i[1] + x_offset)/graph_length,(i[2] - y_offset)/graph_height),(i[1]/graph_length,i[2]/graph_height),decisionNode)
+                plotNode('x' + str(i[0]['attribute']) + "<" + str(i[0]['value']), ((i[1] + x_offset)/graph_length,(i[2] - y_offset)/graph_height),(i[1]/graph_length,i[2]/graph_height-0.03),decisionNode,color[colorCount%len(color)])
+            colorCount += 1
         parents = temp
         temp = []
     plt.axis('off')
