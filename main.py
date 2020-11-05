@@ -300,7 +300,7 @@ def plotNode(nodeTxt, centerPt, parentPt, nodeType):
 def createPlot(tree):
     #创建一个绘图区的全局变量
     depth = getdepth(tree)
-    x_base_offset = pow(2,depth)
+    x_base_offset = pow(2,depth - 2)
     y_base_offset = 2
     box_length = 0.4
     box_height = 0.2
@@ -336,5 +336,5 @@ def createPlot(tree):
     plt.show()
     
 
-createPlot(tree)
+createPlot(a)
 # %%
