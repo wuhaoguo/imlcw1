@@ -136,16 +136,41 @@ def evaluate(test_db, trained_tree):
     wrong = 0
     for i in range(10):
         for r in test_db[i]:
-            actual = int(float(r[7])) - 1
-            predicted = int(float(find_label(trained_tree[i], r[:-1]))) - 1
+            actual = int(float(r[7]))
+            predicted = int(float(find_label(trained_tree[i], r[:-1])))
             if actual == predicted:
                 correct += 1
             else:
                 wrong += 1
-            confusion_matrix[actual][predicted] += 1
+            confusion_matrix[actual-1][predicted-1] += 1
     confusion_matrix = confusion_matrix / 10
+    average_classification_rate = correct / (correct + wrong)
+    plot_matrix(confusion_matrix, title="Normalized confusion matrix")
+    cal_evaluation_matrix(confusion_matrix, average_classification_rate)
+    return average_classification_rate
 
-    # calculate ecall, percision and F1 for class Room 1
+
+def evaluate_prune(test_db, trained_tree):
+    confusion_matrix = np.zeros((4, 4))
+    correct = 0
+    wrong = 0
+    for i in test_db:
+        actual = int(i[-1])
+        predicted = int(find_label(trained_tree, i))
+        if actual == predicted:
+            correct += 1
+        else:
+            wrong += 1
+        confusion_matrix[actual-1][predicted-1] += 1
+    accuracy = correct / (correct + wrong)
+    plot_matrix(confusion_matrix, title="Normalized confusion matrix after pruning")
+    cal_evaluation_matrix(confusion_matrix, accuracy)
+    # return accuracy
+
+
+# calculate evaluation metrice for given confusion matrix
+def cal_evaluation_matrix(confusion_matrix,average_classification_rate):
+    # calculate recall, percision and F1 for class Room 1
     recall_1 = confusion_matrix[0][0] / confusion_matrix.sum(axis=1)[0]
     percision_1 = confusion_matrix[0][0] / confusion_matrix.sum(axis=0)[0]
     F1_measure_1 = 2 * percision_1 * recall_1 / (percision_1 + recall_1)
@@ -170,9 +195,7 @@ def evaluate(test_db, trained_tree):
     percision_average = (percision_1 + percision_2 + percision_3 + percision_4) / 4
     F1_measure_average = 2 * percision_average * recall_average / (percision_average + recall_average)
 
-    average_classification_rate = correct / (correct + wrong)
 
-    plot_matrix(confusion_matrix, title="Normalized confusion matrix")
     print("Recall_room1: ", recall_1, "\nRecall_room2: ", recall_2, "\nRecall_room3: ", recall_3,
           "\nRecall_room4: ", recall_4, "\nMacro_recall: ", recall_average)
     print("Percision_room1: ", percision_1, "\nPercision_room2: ", percision_2, "\nPercision_room3: ", percision_3,
@@ -180,8 +203,6 @@ def evaluate(test_db, trained_tree):
     print("F1_room1: ", F1_measure_1, "\nF1_room2: ", F1_measure_2, "\nF1_room3: ", F1_measure_3,
           "\nF1_room4: ", F1_measure_4, "\nMacro_F1: ", F1_measure_average)
     print("Average classification rate", average_classification_rate)
-
-    return average_classification_rate
 
 
 # plot confusion matrix
@@ -206,20 +227,6 @@ def plot_matrix(cm, title, cmap=plt.cm.Blues):
     fig.tight_layout()
     plt.show()
 
-
-def get_accuracy1(tree, dataset):
-    test_db, trained_tree = cross_validation(dataset)
-    return evaluate(test_db, trained_tree)
-
-
-# %%
-# slices = np.split(noisy_dataset,10)
-# test = slices[-1]
-# validation = slices[-2]
-# training_set = np.hstack(slices[:8])
-# tree,_ = decision_tree_learning(training_set,0)
-# print(get_accuracy(tree,test))
-# %%
 
 def get_data(data, path):
     result = []
@@ -261,23 +268,23 @@ def get_accuracy(tree, dataset):
 
 
 def Pruning(tree, validation_set, curNode=None, path=None):
-    print(curNode)
-    print("")
+    # print(curNode)
+    # print("")
     if not curNode:
         curNode = tree
     if not path:
         path = [curNode]
     else:
         path.append(curNode)
-    print("path: " + str(len(path)))
+    # print("path: " + str(len(path)))
     if isinstance(curNode, float) or isinstance(curNode, int):
         return curNode
     if isinstance(curNode['left'], float) and isinstance(curNode['right'], float):
-        print("Removing")
+        # print("Removing")
         print(path[-1])
         print(path[-2])
         oriAcc = get_accuracy(tree, validation_set)
-        print("oriAcc:" + str(oriAcc))
+        # print("oriAcc:" + str(oriAcc))
         oricurNode = curNode.copy()
         try:
             data = get_data(validation_set, path)
@@ -289,7 +296,7 @@ def Pruning(tree, validation_set, curNode=None, path=None):
         else:
             path[-2]['right'] = label
         newAcc = get_accuracy(tree, validation_set)
-        print("newAcc:" + str(newAcc))
+        # print("newAcc:" + str(newAcc))
         if newAcc < oriAcc:
             return curNode
         else:
@@ -303,10 +310,28 @@ def Pruning(tree, validation_set, curNode=None, path=None):
 clean_dataset = load_data("WIFI_db/clean_dataset.txt")
 noisy_dataset = load_data("WIFI_db/noisy_dataset.txt")
 print("load finished")
-
+dataset = noisy_dataset
 # tree, depth = decision_tree_learning(noisy_dataset, 0)
-test_db, trained_tree = cross_validation(clean_dataset)
+
+# evaluation for 10-fold cross validation
+test_db, trained_tree = cross_validation(dataset)
+print("=============================================")
+print("===Evaluation for 10-fold cross validation===")
 evaluate(test_db, trained_tree)
+
+# pruning
+np.random.shuffle(dataset)
+slices = np.split(dataset, 10)
+test = slices[-1]
+validation = slices[-2]
+training_set = np.vstack(slices[:8])
+tree,_ = decision_tree_learning(training_set,0)
+tree_after_prune = Pruning(tree, validation)
+print("=============================================")
+print("===========Evaluation for pruning============")
+evaluate_prune(test, tree_after_prune)
+
+# evaluation for pruning
 '''
 # Shuffle the dataset
 np.random.shuffle(clean_dataset)
