@@ -243,8 +243,11 @@ def Pruning(tree, validation_set,curNode = None,path = None):
         oriAcc = get_accuracy(tree,validation_set)
         print("oriAcc:" + str(oriAcc))
         oricurNode = curNode.copy()
-        data = get_data(validation_set,path)
-        label = get_most(data)
+        try:
+            data = get_data(validation_set,path)
+            label = get_most(data)
+        except:
+            return curNode
         if path[-2]['left'] == curNode:
             path[-2]['left'] = label
         else:
@@ -252,8 +255,9 @@ def Pruning(tree, validation_set,curNode = None,path = None):
         newAcc = get_accuracy(tree,validation_set)
         print("newAcc:" + str(newAcc))
         if  newAcc < oriAcc:
-            curNode = oricurNode
-        return curNode
+            return curNode
+        else:
+            return label
     curNode['left'] = Pruning (tree,validation_set,curNode['left'],path.copy())
     curNode['right'] = Pruning (tree,validation_set,curNode['right'],path.copy())
     return curNode
