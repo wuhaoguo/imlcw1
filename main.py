@@ -145,7 +145,7 @@ def evaluate(test_db, trained_tree):
             confusion_matrix[actual-1][predicted-1] += 1
     confusion_matrix = confusion_matrix / 10
     average_classification_rate = correct / (correct + wrong)
-    plot_matrix(confusion_matrix, title="Normalized confusion matrix")
+    plot_matrix(confusion_matrix, title="confusion matrix")
     cal_evaluation_matrix(confusion_matrix, average_classification_rate)
     return average_classification_rate
 
@@ -163,7 +163,7 @@ def evaluate_prune(test_db, trained_tree):
             wrong += 1
         confusion_matrix[actual-1][predicted-1] += 1
     accuracy = correct / (correct + wrong)
-    plot_matrix(confusion_matrix, title="Normalized confusion matrix after pruning")
+    plot_matrix(confusion_matrix, title="confusion matrix after pruning")
     cal_evaluation_matrix(confusion_matrix, accuracy)
     # return accuracy
 
@@ -208,7 +208,7 @@ def cal_evaluation_matrix(confusion_matrix,average_classification_rate):
 # plot confusion matrix
 def plot_matrix(cm, title, cmap=plt.cm.Blues):
     classes = ["Room 1", "Room 2", "Room 3", "Room 4"]
-    cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+    # cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
     fig, ax = plt.subplots()
     ax.imshow(cm, interpolation='nearest', cmap=cmap)
     ax.set(xticks=np.arange(cm.shape[1]),
@@ -221,7 +221,7 @@ def plot_matrix(cm, title, cmap=plt.cm.Blues):
     thresh = cm.max() / 2.
     for i in range(cm.shape[0]):
         for j in range(cm.shape[1]):
-            ax.text(j, i, format(cm[i, j], '.2f'),
+            ax.text(j, i, cm[i, j],
                     ha="center", va="center",
                     color="white" if cm[i, j] > thresh else "black")
     fig.tight_layout()
