@@ -170,36 +170,36 @@ def evaluate_prune(test_db, trained_tree):
 
 # calculate evaluation metrice for given confusion matrix
 def cal_evaluation_matrix(confusion_matrix,average_classification_rate):
-    # calculate recall, percision and F1 for class Room 1
+    # calculate recall, precision and F1 for class Room 1
     recall_1 = confusion_matrix[0][0] / confusion_matrix.sum(axis=1)[0]
-    percision_1 = confusion_matrix[0][0] / confusion_matrix.sum(axis=0)[0]
-    F1_measure_1 = 2 * percision_1 * recall_1 / (percision_1 + recall_1)
+    precision_1 = confusion_matrix[0][0] / confusion_matrix.sum(axis=0)[0]
+    F1_measure_1 = 2 * precision_1 * recall_1 / (precision_1 + recall_1)
 
-    # calculate recall, percision and F1 for class Room 1
+    # calculate recall, precision and F1 for class Room 1
     recall_2 = confusion_matrix[1][1] / confusion_matrix.sum(axis=1)[1]
-    percision_2 = confusion_matrix[1][1] / confusion_matrix.sum(axis=0)[1]
-    F1_measure_2 = 2 * percision_2 * recall_2 / (percision_2 + recall_2)
+    precision_2 = confusion_matrix[1][1] / confusion_matrix.sum(axis=0)[1]
+    F1_measure_2 = 2 * precision_2 * recall_2 / (precision_2 + recall_2)
 
-    # calculate recall, percision and F1 for class Room 1
+    # calculate recall, precision and F1 for class Room 1
     recall_3 = confusion_matrix[2][2] / confusion_matrix.sum(axis=1)[2]
-    percision_3 = confusion_matrix[2][2] / confusion_matrix.sum(axis=0)[2]
-    F1_measure_3 = 2 * percision_3 * recall_3 / (percision_3 + recall_3)
+    precision_3 = confusion_matrix[2][2] / confusion_matrix.sum(axis=0)[2]
+    F1_measure_3 = 2 * precision_3 * recall_3 / (precision_3 + recall_3)
 
-    # calculate recall, percision and F1 for class Room 1
+    # calculate recall, precision and F1 for class Room 1
     recall_4 = confusion_matrix[3][3] / confusion_matrix.sum(axis=1)[3]
-    percision_4 = confusion_matrix[3][3] / confusion_matrix.sum(axis=0)[3]
-    F1_measure_4 = 2 * percision_4 * recall_4 / (percision_4 + recall_4)
+    precision_4 = confusion_matrix[3][3] / confusion_matrix.sum(axis=0)[3]
+    F1_measure_4 = 2 * precision_4 * recall_4 / (precision_4 + recall_4)
 
     # calculate  macro-precision, macro-recall and macro-F1
     recall_average = (recall_1 + recall_2 + recall_3 + recall_4) / 4
-    percision_average = (percision_1 + percision_2 + percision_3 + percision_4) / 4
-    F1_measure_average = 2 * percision_average * recall_average / (percision_average + recall_average)
+    precision_average = (precision_1 + precision_2 + precision_3 + precision_4) / 4
+    F1_measure_average = 2 * precision_average * recall_average / (precision_average + recall_average)
 
 
     print("Recall_room1: ", recall_1, "\nRecall_room2: ", recall_2, "\nRecall_room3: ", recall_3,
           "\nRecall_room4: ", recall_4, "\nMacro_recall: ", recall_average)
-    print("Percision_room1: ", percision_1, "\nPercision_room2: ", percision_2, "\nPercision_room3: ", percision_3,
-          "\nPercision_room4: ", recall_4, "\nMacro_percision: ", percision_average)
+    print("precision_room1: ", precision_1, "\nprecision_room2: ", precision_2, "\nprecision_room3: ", precision_3,
+          "\nprecision_room4: ", recall_4, "\nMacro_precision: ", precision_average)
     print("F1_room1: ", F1_measure_1, "\nF1_room2: ", F1_measure_2, "\nF1_room3: ", F1_measure_3,
           "\nF1_room4: ", F1_measure_4, "\nMacro_F1: ", F1_measure_average)
     print("Average classification rate", average_classification_rate)
