@@ -267,6 +267,16 @@ def get_accuracy(tree, dataset):
     return correct / (correct + wrong)
 
 
+def repeat_Pruning(root,validation):
+    ori = root.copy()
+    first = Pruning(root,validation)
+    second = Pruning(first,validation)
+    if first == second:
+        return first
+    else:
+        return repeat_Pruning(second,validation)
+
+
 def Pruning(tree, validation_set, curNode=None, path=None):
     # print(curNode)
     # print("")
@@ -326,7 +336,7 @@ test = slices[-1]
 validation = slices[-2]
 training_set = np.vstack(slices[:8])
 tree,_ = decision_tree_learning(training_set,0)
-tree_after_prune = Pruning(tree, validation)
+tree_after_prune = repeat_Pruning(tree, validation)
 print("=============================================")
 print("===========Evaluation for pruning============")
 evaluate_prune(test, tree_after_prune)
