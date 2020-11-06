@@ -117,6 +117,7 @@ def cross_validation(data, kfold=10, shuffle=False, validation=False):
         np.random.shuffle(data)
     # split data into 10 folds
     slices = np.split(data, kfold)
+    # print(slices)
     all_test_db = []
     all_trained_tree = []
     # iteratively make every fold the test dataset.
@@ -126,6 +127,7 @@ def cross_validation(data, kfold=10, shuffle=False, validation=False):
         training_set.pop(i)
         # the rest 9 folds then combined as the corresponding training set.
         training_set = np.vstack(training_set)
+        # print(len(training_set))
         all_test_db.append(testing_set)
         # get 10 trained tree using 10 training sets.
         trained_tree, _ = decision_tree_learning(training_set, 0)
@@ -152,6 +154,7 @@ def evaluate(test_db, trained_tree):
     confusion_matrix = confusion_matrix / 10
     average_classification_rate = correct / (correct + wrong)
     plot_matrix(confusion_matrix, title="confusion matrix")
+    plot_normalised_matrix(confusion_matrix, title="confusion matrix")
     cal_evaluation_matrix(confusion_matrix, average_classification_rate)
     return average_classification_rate
 
@@ -171,6 +174,7 @@ def evaluate_prune(test_db, trained_tree):
         confusion_matrix[actual-1][predicted-1] += 1
     accuracy = correct / (correct + wrong)
     plot_matrix(confusion_matrix, title="confusion matrix after pruning")
+    plot_normalised_matrix(confusion_matrix, title="confusion matrix after pruning")
     cal_evaluation_matrix(confusion_matrix, accuracy)
 
 
@@ -231,6 +235,27 @@ def plot_matrix(cm, title, cmap=plt.cm.Blues):
     fig.tight_layout()
     plt.show()
 
+
+# plot normalised confusion matrix
+def plot_normalised_matrix(cm, title, cmap=plt.cm.Blues):
+    classes = ["Room 1", "Room 2", "Room 3", "Room 4"]
+    cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+    fig, ax = plt.subplots()
+    ax.imshow(cm, interpolation='nearest', cmap=cmap)
+    ax.set(xticks=np.arange(cm.shape[1]),
+           yticks=np.arange(cm.shape[0]),
+           xticklabels=classes, yticklabels=classes,
+           title="normalised "+title,
+           ylabel='Actual',
+           xlabel='Predicted')
+    thresh = cm.max() / 2.
+    for i in range(cm.shape[0]):
+        for j in range(cm.shape[1]):
+            ax.text(j, i, format(cm[i, j],'.2f'),
+                    ha="center", va="center",
+                    color="white" if cm[i, j] > thresh else "black")
+    fig.tight_layout()
+    plt.show()
 
 def get_data(data, path):
     result = []
@@ -324,11 +349,11 @@ def Pruning(tree, validation_set, curNode=None, path=None):
 clean_dataset = load_data("WIFI_db/clean_dataset.txt")
 noisy_dataset = load_data("WIFI_db/noisy_dataset.txt")
 print("load finished")
-dataset = noisy_dataset
+dataset = clean_dataset
 # tree, depth = decision_tree_learning(noisy_dataset, 0)
 
 # evaluation for 10-fold cross validation
-test_db, trained_tree = cross_validation(dataset)
+test_db, trained_tree = cross_validation(dataset, shuffle=True)
 print("=============================================")
 print("===Evaluation for 10-fold cross validation===")
 evaluate(test_db, trained_tree)
