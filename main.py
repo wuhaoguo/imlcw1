@@ -115,15 +115,19 @@ def cross_validation(data, kfold=10, shuffle=False, validation=False):
         raise ValueError("kfold must be an int ")
     if shuffle:
         np.random.shuffle(data)
+    # split data into 10 folds
     slices = np.split(data, kfold)
     all_test_db = []
     all_trained_tree = []
+    # iteratively make every fold the test dataset.
     for i in range(kfold):
         testing_set = slices[i]
         training_set = slices.copy()
         training_set.pop(i)
+        # the rest 9 folds then combined as the corresponding training set.
         training_set = np.vstack(training_set)
         all_test_db.append(testing_set)
+        # get 10 trained tree using 10 training sets.
         trained_tree, _ = decision_tree_learning(training_set, 0)
         all_trained_tree.append(trained_tree)
     return all_test_db, all_trained_tree
@@ -134,6 +138,7 @@ def evaluate(test_db, trained_tree):
     confusion_matrix = np.zeros((4, 4))
     correct = 0
     wrong = 0
+    # find classification of all test data using trained tree, and form confusion matrix.
     for i in range(10):
         for r in test_db[i]:
             actual = int(float(r[7]))
@@ -143,6 +148,7 @@ def evaluate(test_db, trained_tree):
             else:
                 wrong += 1
             confusion_matrix[actual-1][predicted-1] += 1
+    # find the average confusion matrix.
     confusion_matrix = confusion_matrix / 10
     average_classification_rate = correct / (correct + wrong)
     plot_matrix(confusion_matrix, title="confusion matrix")
@@ -150,6 +156,7 @@ def evaluate(test_db, trained_tree):
     return average_classification_rate
 
 
+# evaluate pruning.
 def evaluate_prune(test_db, trained_tree):
     confusion_matrix = np.zeros((4, 4))
     correct = 0
@@ -165,27 +172,26 @@ def evaluate_prune(test_db, trained_tree):
     accuracy = correct / (correct + wrong)
     plot_matrix(confusion_matrix, title="confusion matrix after pruning")
     cal_evaluation_matrix(confusion_matrix, accuracy)
-    # return accuracy
 
 
-# calculate evaluation metrice for given confusion matrix
+# calculate evaluation metrice for given confusion matrix.
 def cal_evaluation_matrix(confusion_matrix,average_classification_rate):
     # calculate recall, precision and F1 for class Room 1
     recall_1 = confusion_matrix[0][0] / confusion_matrix.sum(axis=1)[0]
     precision_1 = confusion_matrix[0][0] / confusion_matrix.sum(axis=0)[0]
     F1_measure_1 = 2 * precision_1 * recall_1 / (precision_1 + recall_1)
 
-    # calculate recall, precision and F1 for class Room 1
+    # calculate recall, precision and F1 for class Room 2
     recall_2 = confusion_matrix[1][1] / confusion_matrix.sum(axis=1)[1]
     precision_2 = confusion_matrix[1][1] / confusion_matrix.sum(axis=0)[1]
     F1_measure_2 = 2 * precision_2 * recall_2 / (precision_2 + recall_2)
 
-    # calculate recall, precision and F1 for class Room 1
+    # calculate recall, precision and F1 for class Room 3
     recall_3 = confusion_matrix[2][2] / confusion_matrix.sum(axis=1)[2]
     precision_3 = confusion_matrix[2][2] / confusion_matrix.sum(axis=0)[2]
     F1_measure_3 = 2 * precision_3 * recall_3 / (precision_3 + recall_3)
 
-    # calculate recall, precision and F1 for class Room 1
+    # calculate recall, precision and F1 for class Room 4
     recall_4 = confusion_matrix[3][3] / confusion_matrix.sum(axis=1)[3]
     precision_4 = confusion_matrix[3][3] / confusion_matrix.sum(axis=0)[3]
     F1_measure_4 = 2 * precision_4 * recall_4 / (precision_4 + recall_4)
@@ -208,7 +214,6 @@ def cal_evaluation_matrix(confusion_matrix,average_classification_rate):
 # plot confusion matrix
 def plot_matrix(cm, title, cmap=plt.cm.Blues):
     classes = ["Room 1", "Room 2", "Room 3", "Room 4"]
-    # cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
     fig, ax = plt.subplots()
     ax.imshow(cm, interpolation='nearest', cmap=cmap)
     ax.set(xticks=np.arange(cm.shape[1]),
@@ -217,7 +222,6 @@ def plot_matrix(cm, title, cmap=plt.cm.Blues):
            title=title,
            ylabel='Actual',
            xlabel='Predicted')
-
     thresh = cm.max() / 2.
     for i in range(cm.shape[0]):
         for j in range(cm.shape[1]):
