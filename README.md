@@ -4,7 +4,7 @@
 clean_dataset = load_data("wifi_db/clean_dataset.txt")
 noisy_dataset = load_data("wifi_db/noisy_dataset.txt")
 ```
-* And please make sure on **line 327** variable __*dataset*__ is set to the corrseponding variable.
+* And please make sure on **line 327** variable __*dataset*__ is set to the corrseponding variable you changed above.
 
 ## Run
 To run our code, simply type the following in terminal.
