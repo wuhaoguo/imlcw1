@@ -191,6 +191,9 @@ def get_accuracy1(tree, dataset):
 # tree,_ = decision_tree_learning(training_set,0)
 #print(get_accuracy(tree,test))
 def get_data(data,path):
+    """
+    get the data from a validation set that follows the path. This function is used to find all the data that processed by the node at the end of given path
+    """
     result = []
     temp = []
     for i in range(len(path)-1):
@@ -206,6 +209,9 @@ def get_data(data,path):
         temp = []
     return data
 def get_most(data):
+    """
+    return the majority of labels inside input data. 
+    """
     result = {}
     for i in data:
         if int(i[-1]) in result.keys():
@@ -217,6 +223,9 @@ def get_most(data):
     except:
         return None
 def get_accuracy(tree, dataset):
+    """
+    get accuracy of the tree for the given data set
+    """
     correct = 0
     wrong = 0
     for i in dataset:
@@ -227,10 +236,11 @@ def get_accuracy(tree, dataset):
     return correct / (correct + wrong)
 #%%
 def repeat_Pruning(root,validation):
-    ori = root.copy()
+    """This function reads a tree to be pruned and a validation set. It will repeatedly prune the tree until the pruned tree is stable. """
     first = Pruning(root,validation)
     second = Pruning(first,validation)
     if first == second:
+        #No nodes were cut, the tree is stable
         return first
     else:
         return repeat_Pruning(second,validation)
@@ -245,22 +255,27 @@ def Pruning(root, validation_set,curNode = None,path = None):
     if isinstance(curNode,float) or isinstance(curNode,int):
         return curNode
     if isinstance(curNode['left'],float) and isinstance(curNode['right'],float):
+        #Now we got the node to prune
         oriAcc = get_accuracy(tree,validation_set)
         oricurNode = curNode.copy()
+        #Find the correct leaf node handling the majority of data
         try:
             data = get_data(validation_set,path)
             label = get_most(data)
         except:
             return curNode
+        #Prune the tree; The tree will be recovered after the function is returned if pruning is not necessary
         if path[-2]['left'] == curNode:
             path[-2]['left'] = label
         else:
             path[-2]['right'] = label
+        #pick a return value depends on accuracy
         newAcc = get_accuracy(tree,validation_set)
         if  newAcc < oriAcc:
             return curNode
         else:
             return label
+    #inorder traverse
     curNode['left'] = Pruning (tree,validation_set,curNode['left'],path.copy())
     curNode['right'] = Pruning (tree,validation_set,curNode['right'],path.copy())
     return curNode
@@ -291,41 +306,39 @@ def plotNode(nodeTxt, centerPt, parentPt, nodeType,lineColor):
                             va="center", ha='center', bbox=nodeType, arrowprops=dict(arrowstyle="-",color=lineColor))
 
 def createPlot(tree):
-    #创建一个绘图区的全局变量
     color = ["red","blue", "peru","plum","cyan","lime","orange","black"]
     colorCount = 0
     depth = getdepth(tree)
+    #depth - 1 controls the x offset near root 
     x_base_offset = pow(2,depth - 1)
     y_base_offset = 2
-    box_length = 0.4
-    box_height = 0.2
     graph_length = pow(2,depth) * depth
     graph_height = y_base_offset * depth
     base_x = graph_length / 2
     base_y = graph_height * 0.95
 
     fig = plt.figure(1, facecolor='white')
-    fig.clf() #清空绘图区
+    fig.clf()
     createPlot.ax1 = plt.subplot(111, frameon=False)
+    #plot base node; No arrows plot here
     plotNode('x' + str(tree['attribute']) + "<" + str(tree['value']), (base_x/graph_length, base_y/graph_height), (base_x/graph_length, base_y/graph_height), decisionNode,color[colorCount%len(color)])
     parents = [[tree,base_x,base_y]]
     temp = []
     for d in range(1,depth):
         for i in parents:
+            #1.4 controls the convergence of the tree
             x_offset =  pow(1.4,depth - d) * x_base_offset
             y_offset =  y_base_offset
+            #plot leaf
             if not isinstance(i[0]['left'],dict):
                 plotNode('leaf:' + str(int(i[0]['left'])),((i[1] - x_offset)/graph_length,(i[2] - y_offset)/graph_height),(i[1]/graph_length,i[2]/graph_height-0.03),decisionNode,color[colorCount%len(color)])
-                # plt.savefig(str(colorCount) + ".png")
             if not isinstance(i[0]['right'],dict):
-                plotNode('leaf:' + str(int(i[0]['right'])),((i[1] + x_offset)/graph_length,(i[2] - y_offset)/graph_height),(i[1]/graph_length,i[2]/graph_height-0.03),decisionNode,color[colorCount%len(color)])   
-                # plt.savefig(str(colorCount) + ".png")        
+                plotNode('leaf:' + str(int(i[0]['right'])),((i[1] + x_offset)/graph_length,(i[2] - y_offset)/graph_height),(i[1]/graph_length,i[2]/graph_height-0.03),decisionNode,color[colorCount%len(color)])     
+            #plot node
             if isinstance(i[0]['left'],dict):
                 temp.append([i[0]['left'],(i[1] - x_offset),(i[2] - y_offset)])
-                # plt.savefig(str(colorCount) + ".png")
                 plotNode('x' + str(i[0]['left']['attribute']) + "<" + str(i[0]['left']['value']),((i[1] - x_offset)/graph_length,(i[2] - y_offset)/graph_height), (i[1]/graph_length,i[2]/graph_height-0.03),decisionNode,color[colorCount%len(color)])
             if isinstance(i[0]['right'],dict):
-                # plt.savefig(str(colorCount) + ".png")
                 temp.append([i[0]['right'],(i[1] + x_offset),(i[2] - y_offset)])
                 plotNode('x' + str(i[0]['right']['attribute']) + "<" + str(i[0]['right']['value']), ((i[1] + x_offset)/graph_length,(i[2] - y_offset)/graph_height),(i[1]/graph_length,i[2]/graph_height-0.03),decisionNode,color[colorCount%len(color)])
             colorCount += 1
